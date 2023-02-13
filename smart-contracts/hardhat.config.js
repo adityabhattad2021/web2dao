@@ -31,12 +31,15 @@ module.exports = {
 		deployer: {
 			default: 0,
 		},
-		contestant1: {
+		voter1: {
 			default: 1,
 		},
-		contestant2: {
+		voter2: {
 			default: 2,
 		},
+		reciever:{
+			default:3,
+		}
 	},
 	settings: {
 		optimizer: {

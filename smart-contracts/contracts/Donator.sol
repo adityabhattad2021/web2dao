@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 contract Donator is AutomationCompatibleInterface {
-
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.AddressSet;
-    
+
     address public immutable NFTAddress;
 
     event ProposalCreated(
@@ -37,8 +37,6 @@ contract Donator is AutomationCompatibleInterface {
         uint amount
     );
     event FundsRecieved(address from, uint amount, uint timestamp);
-
-    
 
     struct RecievedFunds {
         address from;
@@ -96,6 +94,7 @@ contract Donator is AutomationCompatibleInterface {
         );
 
         // Create a new proposal
+        proposalCounter.increment();
         uint proposalId = proposalCounter.current();
         Proposal storage proposal = proposals[proposalId];
         proposal.id = proposalId;
@@ -107,7 +106,7 @@ contract Donator is AutomationCompatibleInterface {
         proposal.noVotes = 0;
         proposal.status = uint(ProposalStatus.Pending);
         proposal.votingEndTime = block.timestamp + 2 minutes;
-        proposalCounter.increment();
+        
 
         emit ProposalCreated(
             proposalId,
@@ -118,10 +117,13 @@ contract Donator is AutomationCompatibleInterface {
         );
     }
 
-    function voteForProposal(uint _proposalId) public {
-        require(IERC721(NFTAddress).balanceOf(msg.sender) > 0, "You must own an acceptance NFT to vote for a proposal");
+    function voteForProposal(uint _proposalId, uint _vote) public {
         require(
-            _proposalId < proposalCounter.current(),
+            IERC721(NFTAddress).balanceOf(msg.sender) > 0,
+            "You must own an acceptance NFT to vote for a proposal"
+        );
+        require(
+            _proposalId!=0 &&_proposalId <= proposalCounter.current(),
             "Proposal does not exist"
         );
         require(
@@ -140,7 +142,11 @@ contract Donator is AutomationCompatibleInterface {
             !proposalIdToVoters[_proposalId].contains(msg.sender),
             "You have already voted for this proposal"
         );
-        proposals[_proposalId].yesVotes += 1;
+        if (_vote == 0) {
+            proposals[_proposalId].noVotes += 1;
+        } else {
+            proposals[_proposalId].yesVotes += 1;
+        }
 
         // Add voter to proposal
         proposalIdToVoters[_proposalId].add(msg.sender);
@@ -157,13 +163,12 @@ contract Donator is AutomationCompatibleInterface {
             proposals[_proposalId].status == uint(ProposalStatus.Approved),
             "Proposal is not approved"
         );
-
+        Proposal storage proposal = proposals[_proposalId];
+        proposal.status = uint(ProposalStatus.Executed);
         (bool success, ) = proposals[_proposalId].donationAddress.call{
             value: proposals[_proposalId].amount
         }("");
         require(success, "Transfer failed.");
-        Proposal storage proposal = proposals[_proposalId];
-        proposal.status = uint(ProposalStatus.Executed);
         emit ProposalExecuted(
             _proposalId,
             proposals[_proposalId].donationAddress,
@@ -182,16 +187,16 @@ contract Donator is AutomationCompatibleInterface {
     // Chainlink Keeper
     function checkUpkeep(
         bytes memory /* checkData */
-    ) public override returns (bool, bytes memory) {
-        bool upkeepNeeded = false;
+    ) public override returns (bool upkeepNeeded, bytes memory /* performData */) {
+        bool isUpkeepNeeded = false;
         for (uint i = 0; i < proposalCounter.current(); i++) {
             uint proposalStatus = uint(getProposalStatus(i));
             if (proposalStatus == uint(ProposalStatus.Approved)) {
-                upkeepNeeded = true;
-                return (upkeepNeeded, "");
+                isUpkeepNeeded = true;
             }
         }
-        return (upkeepNeeded, "");
+        console.log("Upkeep needed: ", isUpkeepNeeded);
+        upkeepNeeded = isUpkeepNeeded;
     }
 
     function performUpkeep(bytes memory /* performData */) external override {
@@ -254,11 +259,14 @@ contract Donator is AutomationCompatibleInterface {
                     proposals[_proposalId].amount
                 );
                 return proposal.status;
-
             }
         } else {
             return proposals[_proposalId].status;
         }
+    }
+
+    function getProposalCount() public view returns (uint) {
+        return proposalCounter.current();
     }
 
     // what happens if some one sends this contract ETH without calling fund function.

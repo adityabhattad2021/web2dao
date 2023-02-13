@@ -25,6 +25,6 @@ contract DonatorAccess is ERC721, Ownable {
         uint256, /* firstTokenId */
         uint256 /* batchSize */ 
     ) internal override pure {
-        require(from == address(0) && to==address(0), "ERC721: transfer of token that is not own");
+        require(from == address(0) || to==address(0), "SBT: Transfer not allowed");
     }
 }
