@@ -2,15 +2,16 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
-// TODO: Add a NFT gated function to vote for a proposal and create a proposal.
 
 contract Donator is AutomationCompatibleInterface {
 
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.AddressSet;
+    
+    address public immutable NFTAddress;
 
     event ProposalCreated(
         uint proposalId,
@@ -70,11 +71,19 @@ contract Donator is AutomationCompatibleInterface {
         Executed // 3
     }
 
+    constructor(address _NFTAddress) {
+        NFTAddress = _NFTAddress;
+    }
+
     function proposeDonation(
         address _donationAddress,
         string memory donationReason,
         uint _amount
     ) public {
+        require(
+            IERC721(NFTAddress).balanceOf(msg.sender) > 0,
+            "You must own an acceptance NFT to propose a donation"
+        );
         require(_donationAddress != address(0), "Donation address cannot be 0");
         require(_amount > 0, "Donation amount must be greater than 0");
         require(
@@ -110,6 +119,7 @@ contract Donator is AutomationCompatibleInterface {
     }
 
     function voteForProposal(uint _proposalId) public {
+        require(IERC721(NFTAddress).balanceOf(msg.sender) > 0, "You must own an acceptance NFT to vote for a proposal");
         require(
             _proposalId < proposalCounter.current(),
             "Proposal does not exist"
