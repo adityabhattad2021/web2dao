@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract Donator is AutomationCompatibleInterface {
+contract Donator is AutomationCompatibleInterface, ReentrancyGuard{
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -154,7 +155,7 @@ contract Donator is AutomationCompatibleInterface {
         emit ProposalVoted(_proposalId, msg.sender, true);
     }
 
-    function executeProposal(uint _proposalId) internal {
+    function executeProposal(uint _proposalId) internal nonReentrant {
         require(
             _proposalId < proposalCounter.current(),
             "Proposal does not exist"
