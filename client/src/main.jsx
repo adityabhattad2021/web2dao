@@ -6,12 +6,14 @@ import App from "./App";
 import "./main.css";
 import { StateContextProvider } from "./context";
 
-const chainId = ChainId.Hardhat;
+const chainId = ChainId.Mumbai;
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
-	<ThirdwebProvider desiredChainId={chainId}>
+	<ThirdwebProvider
+		desiredChainId={chainId}
+	>
 		<BrowserRouter>
 			<StateContextProvider>
 				<App />

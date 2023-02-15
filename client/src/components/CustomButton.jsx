@@ -7,7 +7,7 @@ function CustomButton({
     return(
         <button
             type={buttonType}
-            className={`font-epilogue font-semibold pt-[10px] text-[28px] leading-[16px] text-white min-h-[52px] px-4 rounded-xl ${styles}`}
+            className={`font-epilogue font-semibold text-[16px] leading-[16px] text-white min-h-[52px] px-4 rounded-xl ${styles}`}
             onClick={handleClick}
         >
             {title}

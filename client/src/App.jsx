@@ -1,7 +1,7 @@
 import { Route,Routes } from "react-router-dom";
 import { useState } from "react";
 import { Navbar } from "./components";
-import { Dashboard, Mint, Vote } from "./pages";
+import { Dashboard, Mint, Propose, Vote } from "./pages";
 
 
 function App(){
@@ -12,6 +12,7 @@ function App(){
                 <Route path="/" element={<Dashboard/>} />
                 <Route path="/mint" element={<Mint/>} />
                 <Route path="/vote/:id" element={<Vote/>} />
+                <Route path="/propose" element={<Propose/>}/>
             </Routes>
         </div>
     )

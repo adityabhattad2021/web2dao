@@ -1,4 +1,14 @@
+export const donatorAddress = "0xc21fB0968226F801C17EEbF149bBD8Ca4f8593Af";
+export const donatorAccessAddress =
+	"0x6156F9879be1e099c9BE686b119aFc1a6A9aA825";
 
-	export const donatorAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-	export const donatorAccessAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-	
+export const navLinks = [
+	{
+		name: "Propose",
+		link: "/propose",
+	},
+	{
+		name: "Mint",
+		link: "/mint",
+	},
+];
