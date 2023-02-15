@@ -1,68 +1,105 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
-  Donator,
-  FundsRecieved,
-  ProposalApproved,
-  ProposalCreated,
-  ProposalExecuted,
-  ProposalRejected,
-  ProposalVoted
-} from "../generated/Donator/Donator"
-import { ExampleEntity } from "../generated/schema"
+	FundsRecieved,
+	ProposalApproved,
+	ProposalCreated,
+	ProposalExecuted,
+	ProposalRejected,
+} from "../generated/Donator/Donator";
+import {
+	ActiveProposal,
+	CancelledProposal,
+	ExecutedProposal,
+	RecievedFund,
+} from "../generated/schema";
 
 export function handleFundsRecieved(event: FundsRecieved): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+	let recievedFunds = RecievedFund.load(getIdFromEventParams(event.params.timestamp))
+	if(!recievedFunds){
+		recievedFunds=new RecievedFund(getIdFromEventParams(event.params.timestamp))
+	}
+	recievedFunds.amount=event.params.amount
+	recievedFunds.from=event.params.from
+	recievedFunds.timestamp=event.params.timestamp
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
+	recievedFunds.save()
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.from = event.params.from
-  entity.amount = event.params.amount
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.NFTAddress(...)
-  // - contract.checkUpkeep(...)
-  // - contract.getProposal(...)
-  // - contract.getProposalCount(...)
-  // - contract.getProposalStatus(...)
-  // - contract.getProposalVotes(...)
 }
 
-export function handleProposalApproved(event: ProposalApproved): void {}
+export function handleProposalApproved(event: ProposalApproved): void {
 
-export function handleProposalCreated(event: ProposalCreated): void {}
+	let approvedProposal = ExecutedProposal.load(getIdFromEventParams(event.params.proposalId))
+	let activeProposal=ActiveProposal.load(getIdFromEventParams(event.params.proposalId))
+	if(!approvedProposal){
+		approvedProposal = new ExecutedProposal(getIdFromEventParams(event.params.proposalId))
+	}
 
-export function handleProposalExecuted(event: ProposalExecuted): void {}
+	approvedProposal.amount=event.params.amount
+	approvedProposal.proposalId=event.params.proposalId
+	approvedProposal.reciever=event.params.donationAddress
 
-export function handleProposalRejected(event: ProposalRejected): void {}
+	activeProposal!.amount=BigInt.fromString("0")
 
-export function handleProposalVoted(event: ProposalVoted): void {}
+	approvedProposal.save()
+	activeProposal!.save()	
+
+}
+
+export function handleProposalCreated(event: ProposalCreated): void {
+
+	let activeProposal=ActiveProposal.load(getIdFromEventParams(event.params.proposalId))
+
+	if(!activeProposal) {
+		activeProposal = new ActiveProposal(getIdFromEventParams(event.params.proposalId))
+	}
+
+	activeProposal.amount=event.params.amount
+	activeProposal.proposalId=event.params.proposalId
+	activeProposal.reciever=event.params.donationAddress
+
+	activeProposal.save()
+
+}
+
+export function handleProposalExecuted(event: ProposalExecuted): void {
+
+	let executedProposal = ExecutedProposal.load(getIdFromEventParams(event.params.proposalId))
+	let activeProposal=ActiveProposal.load(getIdFromEventParams(event.params.proposalId))
+	if(!executedProposal){
+		executedProposal = new ExecutedProposal(getIdFromEventParams(event.params.proposalId))
+	}
+
+	executedProposal.amount=event.params.amount
+	executedProposal.proposalId=event.params.proposalId
+	executedProposal.reciever=event.params.donationAddress
+
+	activeProposal!.amount=BigInt.fromString("0")
+
+	executedProposal.save()
+	activeProposal!.save()
+
+}
+
+export function handleProposalRejected(event: ProposalRejected): void {
+
+	let cancelledProposal = CancelledProposal.load(getIdFromEventParams(event.params.proposalId))
+	let activeProposal=ActiveProposal.load(getIdFromEventParams(event.params.proposalId))
+	if(!cancelledProposal){
+		cancelledProposal = new CancelledProposal(getIdFromEventParams(event.params.proposalId))
+	}
+
+	cancelledProposal.amount=event.params.amount
+	cancelledProposal.proposalId=event.params.proposalId
+	cancelledProposal.reciever=event.params.donationAddress
+
+	activeProposal!.amount=BigInt.fromString("0")
+
+	cancelledProposal.save()
+	activeProposal!.save()
+
+}
+
+function getIdFromEventParams(proposalId:BigInt):string{
+	return proposalId.toHexString();
+}

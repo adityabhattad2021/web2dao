@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: Donator
@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0xc21fB0968226F801C17EEbF149bBD8Ca4f8593Af"
       abi: Donator
-      startBlock: 32070143 
+      startBlock: 32070143
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -22,7 +22,7 @@ dataSources:
         - ProposalVoted
       abis:
         - name: Donator
-          file: ./abis/Donator.json
+          file: Donator/abis/Donator.json
       eventHandlers:
         - event: FundsRecieved(address,uint256,uint256)
           handler: handleFundsRecieved
@@ -36,4 +36,4 @@ dataSources:
           handler: handleProposalRejected
         - event: ProposalVoted(uint256,address,bool)
           handler: handleProposalVoted
-      file: ./src/donator.ts
+      file: Donator/Donator.wasm
