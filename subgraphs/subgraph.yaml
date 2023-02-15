@@ -1,0 +1,38 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Donator
+    network: mumbai
+    source:
+      address: "0xc21fB0968226F801C17EEbF149bBD8Ca4f8593Af"
+      abi: Donator
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - FundsRecieved
+        - ProposalApproved
+        - ProposalCreated
+        - ProposalExecuted
+        - ProposalRejected
+        - ProposalVoted
+      abis:
+        - name: Donator
+          file: ./abis/Donator.json
+      eventHandlers:
+        - event: FundsRecieved(address,uint256,uint256)
+          handler: handleFundsRecieved
+        - event: ProposalApproved(uint256,address,uint256)
+          handler: handleProposalApproved
+        - event: ProposalCreated(uint256,address,address,string,uint256)
+          handler: handleProposalCreated
+        - event: ProposalExecuted(uint256,address,uint256)
+          handler: handleProposalExecuted
+        - event: ProposalRejected(uint256,address,uint256)
+          handler: handleProposalRejected
+        - event: ProposalVoted(uint256,address,bool)
+          handler: handleProposalVoted
+      file: ./src/donator.ts
