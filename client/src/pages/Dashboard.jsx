@@ -14,6 +14,7 @@ function Dashboard() {
 	const { data: activeProposals } = useQuery(GET_ACTIVE_PROPOSALS);
 	const { data: executedProposals } = useQuery(GET_EXECUTED_PROPOSALS);
 	const { data: recievedFunds } = useQuery(GET_RECIEVED_FUNDS);
+	console.log(activeProposals);
 
 	const proposal = {
 		id: 1,
@@ -35,8 +36,8 @@ function Dashboard() {
 		)}${seperator}${fullStr.substring(fullStr.length - endChar)}`;
 	}
 
-	function handleNavigate(proposal) {
-		navigate(`/vote/${proposal.id}`);
+	function handleNavigate(proposalId) {
+		navigate(`/vote/${proposalId}`);
 	}
 
 	return (
@@ -73,7 +74,7 @@ function Dashboard() {
 														{truncatedSender}
 													</div>
 												</a>
-												<div className="cursor-pointer">
+												<div className="cursor-pointer w-[100px]">
 													{formattedAmount} MATIC
 												</div>
 												<div>{timestamp}</div>
@@ -114,11 +115,11 @@ function Dashboard() {
 														href={`https://mumbai.polygonscan.com/address/${from}`}
 														target="_blank"
 													>
-														<div className="overflow-x-hidden w-[100px] Fcursor-pointer">
+														<div className="overflow-x-hidden w-[100px] cursor-pointer">
 															{truncatedSender}
 														</div>
 													</a>
-													<div className="cursor-pointer">
+													<div className="cursor-pointer w-[100px] ">
 														{formattedAmount} MATIC
 													</div>
 												</div>
@@ -136,25 +137,47 @@ function Dashboard() {
 						Proposed Donations
 					</h1>
 					<div className="overflow-y-scroll h-[150px]">
-						<div className="font-epilogue font-medium sm:text-[20px] text-[15px]  text-white w-full mt-5 flex flex-row justify-around">
-							<h1>Proposal Id</h1>
-							<h1>Proposal Description</h1>
-							<div className="w-[350px]"></div>
+						<div className="font-epilogue font-medium sm:text-[20px] text-[15px]  text-white w-full mt-5 flex flex-row justify-between">
+							<h1 className="ml-[10px]">Proposal Id</h1>
+							<h1 className="">Reciever</h1>
+							<h1>Amount</h1>
+							<div className="w-[100px]"></div>
 						</div>
-						<div className="font-epilogue font-medium sm:text-[20px] text-[15px]  text-white w-full mt-5 flex flex-row justify-around">
-							<h1>1</h1>
-							<div className="w-[400px]">
-								Proposal Description Proposal Description...
-							</div>
-							<CustomButton
-								buttonType="submit"
-								title="vote"
-								styles="bg-[#1dc071] w-[150px]"
-								handleClick={() => {
-									handleNavigate(proposal);
-								}}
-							/>
-						</div>
+						{activeProposals &&
+							activeProposals.activeProposals.map((proposal) => {
+								const { proposalId, amount, reciever } =
+									proposal;
+								console.log(proposalId, amount, reciever);
+								const formattedAmount =
+									ethers.utils.formatEther(amount);
+								const truncatedReciever = truncateString(
+									reciever,
+									20
+								);
+
+								return (
+									<div
+										key={proposalId}
+										className="font-epilogue font-medium sm:text-[20px] text-[15px]  text-white w-full mt-5 flex flex-row justify-around"
+									>
+										<h1>{proposalId}</h1>
+										<div className="w-[250px]">
+											{truncatedReciever}
+										</div>
+										<div className="w-[150px]">
+											{formattedAmount}{" "}MATIC
+										</div>
+										<CustomButton
+											buttonType="submit"
+											title="vote"
+											styles="bg-[#1dc071]"
+											handleClick={() => {
+												handleNavigate(proposalId);
+											}}
+										/>
+									</div>
+								);
+							})}
 					</div>
 				</div>
 			</div>

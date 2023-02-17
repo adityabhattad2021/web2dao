@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import { CustomButton, Loader } from "../components";
 import { useStateContext } from "../context";
 
@@ -12,6 +12,7 @@ const initialProposal = {
 function Vote() {
 
 	const { id } = useParams();
+	const navigate=useNavigate()
 	const [isLoading, setIsLoading] = useState(false);
 	const { getProposalCall, donator, address,voteProposal } = useStateContext();
 	const [proposal, setProposal] = useState(initialProposal);
@@ -20,6 +21,7 @@ function Vote() {
 		setIsLoading(true);
 		const p = await getProposalCall(proposalId);
 		setProposal(p);
+		console.log(p);
 		setIsLoading(false);
 	}
 
@@ -30,6 +32,7 @@ function Vote() {
         }else{
             await voteProposal(id,0);
         }
+		navigate('/');
         setIsLoading(false);
     }
 
@@ -47,10 +50,10 @@ function Vote() {
 				<div className="flex flex-col sm:flex-row flex-shrink">
 					<div className="bg-[#1c1c24] flex justify-center items-center flex-col rounded-[30px] lg:w-[60%] sm:p-10 p-4 mx-5 h-[75vh] overflow-y-auto">
 						<h1 className="font-epilogue font-medium sm:text-[25px] text-[18px] leading-[38px] text-white">
-							Proposal Id 1
+							Proposal Id {id}
 						</h1>
 						<div className="mt-2 w-full">
-							<div className="font-epilogue font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]  text-left border-2 border-[#808191] rounded-[15px] w-[90%] h-[23%] flex flex-col justify-start overflow-x-hidden">
+							<div className="font-epilogue font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]  text-left border-2 border-[#808191] rounded-[15px] w-[90%] h-[23%] flex flex-col justify-start">
 								<h1 className="p-2">Recipient Address</h1>
 								<h2 className="p-2">
 									{proposal.recipientAddress}

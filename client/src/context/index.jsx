@@ -65,7 +65,7 @@ export function StateContextProvider({ children }) {
 
 	async function voteProposal(proposalId,vote){
 		try {
-			const data = await voteForProposal([ _proposalId, _vote ]);
+			const data = await voteForProposal([ proposalId, vote ]);
 			console.info("contract call successs", data);
 		  } catch (err) {
 			console.error("contract call failure", err);
