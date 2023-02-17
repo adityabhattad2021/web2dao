@@ -38,21 +38,24 @@ export function StateContextProvider({ children }) {
 	// -------------------------------------------------------------------------
 
 	// Donator Functions
-	const { mutateAsync: proposeDonation, isLoading } = useContractWrite(
+	const { mutateAsync: proposeDonation } = useContractWrite(
 		donator,
 		"proposeDonation"
 	);
+	const { mutateAsync: voteForProposal } = useContractWrite(donator, "voteForProposal")
 
 	// Transection Calls
 	async function donateProposal(data1) {
 		console.log(data1);
-		const _donationAddress=data1.donationAddress;
-		const donationReason=data1.donationReason;
-		const _amount=ethers.utils.parseEther(data1.donationAmount)
+		const _donationAddress = data1.donationAddress;
+		const donationReason = data1.donationReason;
+		const _amount = ethers.utils.parseEther(data1.donationAmount);
 		console.log(_amount);
 		try {
 			const data = await proposeDonation([
-				_donationAddress, donationReason, _amount
+				_donationAddress,
+				donationReason,
+				_amount,
 			]);
 			console.info("contract call successs", data);
 		} catch (err) {
@@ -60,7 +63,26 @@ export function StateContextProvider({ children }) {
 		}
 	}
 
+	async function voteProposal(proposalId,vote){
+		try {
+			const data = await voteForProposal([ _proposalId, _vote ]);
+			console.info("contract call successs", data);
+		  } catch (err) {
+			console.error("contract call failure", err);
+		  }
+	}
+
 	// Read Calls
+	async function getProposalCall(proposalId) {
+		const proposal = await donator.call("getProposal", proposalId);
+		console.log(proposal);
+		const parsedProposal = {
+			recipientAddress: proposal._donationAddress,
+			proposalDescrption: proposal.donationReason,
+			amount: ethers.utils.formatEther(proposal._amount.toString()),
+		};
+		return parsedProposal;
+	}
 
 	// -------------------------------------------------------------------------
 
@@ -68,8 +90,11 @@ export function StateContextProvider({ children }) {
 		<StateContext.Provider
 			value={{
 				address,
+				donator,
 				mintNFT,
 				donateProposal,
+				voteProposal,
+				getProposalCall,
 				connect,
 			}}
 		>
