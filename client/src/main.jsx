@@ -6,8 +6,11 @@ import App from "./App";
 import "./main.css";
 import { StateContextProvider } from "./context";
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
+import { getAuth } from "./arcana/getArcanaAuth";
+import { ProvideAuth } from "./arcana/useArcanaAuth";
 
 const chainId = ChainId.Mumbai;
+const auth = getAuth();
 
 const client = new ApolloClient({
 	cache: new InMemoryCache(),
@@ -20,9 +23,11 @@ root.render(
 	<ThirdwebProvider desiredChainId={chainId}>
 		<ApolloProvider client={client}>
 			<BrowserRouter>
-				<StateContextProvider>
-					<App />
-				</StateContextProvider>
+				<ProvideAuth provider={auth}>
+					<StateContextProvider>
+						<App />
+					</StateContextProvider>
+				</ProvideAuth>
 			</BrowserRouter>
 		</ApolloProvider>
 	</ThirdwebProvider>

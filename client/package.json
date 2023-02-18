@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.8",
+    "@arcana/auth": "^1.0.1",
     "@thirdweb-dev/react": "^3",
     "@thirdweb-dev/sdk": "^3",
     "ethers": "^5.7.2",

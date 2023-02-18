@@ -1,11 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CustomButton } from "../components";
 import { useStateContext } from "../context";
 import { navLinks } from "../constants";
+import { useArcanaAuth } from "../arcana/useArcanaAuth";
 
 function Navbar() {
-	const { address, connect } = useStateContext();
+	const { address } = useStateContext();
+	const { user, connect, provider } = useArcanaAuth();
+
+	async function onConnectClick() {
+		try {
+			await connect();
+		} catch (e) {
+			console.log(e);
+		}
+	}
+
+	function onConnect() {
+		console.log("connected");
+	}
+
+
+	useEffect(() => {
+		// provider.on("connect", onConnect);
+		return () => {
+			provider.removeListener("connect", onConnect);
+		};
+	}, [provider]);
 
 	return (
 		<div className="bg-[#1c1c24] h-[10vh] flex flex-row mb-[35px] gap-6 justify-between mt-[35px] ml-[20px] mr-[20px] rounded-[30px]">
@@ -30,10 +52,10 @@ function Navbar() {
 			<div className="flex justify-center items-center rounded-[30px] bg-[#1dc071] w-[200px] p-2">
 				<CustomButton
 					buttonType="button"
-					title={address ? "Connected" : "Connect"}
+					title={user ? "Connected" : "Connect"}
 					styles="text-lg text-center"
 					handleClick={() => {
-						connect();
+						onConnectClick();
 					}}
 				/>
 			</div>

@@ -7,7 +7,13 @@ import {
 	useContractWrite,
 } from "@thirdweb-dev/react";
 import { ethers } from "ethers";
-import { donatorAccessAddress, donatorAddress } from "../constants";
+import {
+	donatorABI,
+	donatorAccessABI,
+	donatorAccessAddress,
+	donatorAddress,
+} from "../constants";
+import { useArcanaAuth } from "../arcana/useArcanaAuth";
 
 const StateContext = createContext();
 
@@ -16,18 +22,29 @@ export function StateContextProvider({ children }) {
 	const { contract: donator } = useContract(donatorAddress);
 	const address = useAddress();
 	const connect = useMetamask();
+	const { user, provider } = useArcanaAuth();
 
 	// -------------------------------------------------------------------------
 	// NFT Function
-	const { mutateAsync: safeMint } = useContractWrite(accessNFT, "safeMint");
 
 	// Transection Calls
 	async function mintNFT() {
-		try {
-			const data = await safeMint();
-			console.log(data);
-		} catch (error) {
-			console.log(error);
+		if (typeof provider !== "undefined") {
+			const provider1 = new ethers.providers.Web3Provider(provider);
+			const signer = provider1.getSigner(user.address);
+			console.log(signer);
+			const contract = new ethers.Contract(
+				donatorAccessAddress,
+				donatorAccessABI,
+				signer
+			);
+			try {
+				const tx = await contract.safeMint();
+				await provider.waitForTransection(tx.hash);
+				console.log(tx);
+			} catch (error) {
+				console.log(error);
+			}
 		}
 	}
 
@@ -38,11 +55,6 @@ export function StateContextProvider({ children }) {
 	// -------------------------------------------------------------------------
 
 	// Donator Functions
-	const { mutateAsync: proposeDonation } = useContractWrite(
-		donator,
-		"proposeDonation"
-	);
-	const { mutateAsync: voteForProposal } = useContractWrite(donator, "voteForProposal")
 
 	// Transection Calls
 	async function donateProposal(data1) {
@@ -51,25 +63,46 @@ export function StateContextProvider({ children }) {
 		const donationReason = data1.donationReason;
 		const _amount = ethers.utils.parseEther(data1.donationAmount);
 		console.log(_amount);
-		try {
-			const data = await proposeDonation([
-				_donationAddress,
-				donationReason,
-				_amount,
-			]);
-			console.info("contract call successs", data);
-		} catch (err) {
-			console.error("contract call failure", err);
+		if (typeof provider !== "undefined") {
+			const provider1 = new ethers.providers.Web3Provider(provider);
+			const signer = provider1.getSigner(user.address);
+			const contract = new ethers.Contract(
+				donatorAddress,
+				donatorABI,
+				signer
+			);
+			try {
+				const tx = await contract.proposeDonation(
+					_donationAddress,
+					donationReason,
+					_amount
+				);
+				await provider.waitForTransection(tx.hash);
+				console.log(tx);
+			} catch (err) {
+				console.error("contract call failure", err);
+			}
 		}
 	}
 
-	async function voteProposal(proposalId,vote){
-		try {
-			const data = await voteForProposal([ proposalId, vote ]);
-			console.info("contract call successs", data);
-		  } catch (err) {
-			console.error("contract call failure", err);
-		  }
+	async function voteProposal(proposalId, vote) {
+		if (typeof provider !== "undefined") {
+			const provider1 = new ethers.providers.Web3Provider(provider);
+			const signer = provider1.getSigner(user.address);
+			const contract = new ethers.Contract(
+				donatorAddress,
+				donatorABI,
+				signer
+			);
+			try {
+				const tx = await contract.voteForProposal(proposalId, vote);
+				await provider.waitForTransection(tx.hash);
+				console.log(tx);
+				console.info("contract call successs", data);
+			} catch (err) {
+				console.error("contract call failure", err);
+			}
+		}
 	}
 
 	// Read Calls
