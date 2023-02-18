@@ -14,7 +14,7 @@ const auth = getAuth();
 
 const client = new ApolloClient({
 	cache: new InMemoryCache(),
-	uri: "https://api.thegraph.com/subgraphs/name/adityabhattad2021/donator-subgraphv5",
+	uri: "https://api.thegraph.com/subgraphs/name/adityabhattad2021/donator-subgraphv6",
 });
 
 const container = document.getElementById("root");
