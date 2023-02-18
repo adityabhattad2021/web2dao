@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
@@ -196,7 +195,6 @@ contract Donator is AutomationCompatibleInterface, ReentrancyGuard{
                 isUpkeepNeeded = true;
             }
         }
-        console.log("Upkeep needed: ", isUpkeepNeeded);
         upkeepNeeded = isUpkeepNeeded;
     }
 
