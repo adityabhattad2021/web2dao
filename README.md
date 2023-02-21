@@ -9,5 +9,9 @@ By making the process of using blockchain technology more accessible and less in
 ## Flow:
 ![projectFlow](https://user-images.githubusercontent.com/93488388/219900673-dc1d9285-5cfe-4bb9-9349-9fcf06fcec9b.png)
 
-Video Demo:
-https://www.youtube.com/watch?v=qNUUX2Jt-Mo
+Demo:
+https://user-images.githubusercontent.com/93488388/220428040-8c85c811-6883-4c0f-8f93-c5ac45647b6e.mp4
+
+
+
+
